@@ -68,7 +68,7 @@ const generateTemplate = async (env, templateFile) => {
     return { key, value };
   });
   const rendered = await ejs.renderFile(
-    path.resolve(`${path.dirname(url.fileURLToPath("file:///Users/christian/scaffoldly/dotenv-ts/index.js"))}/${templateFile}`),
+    path.resolve(`${path.dirname(url.fileURLToPath("file:///home/runner/work/dotenv-out/dotenv-out/index.js"))}/${templateFile}`),
     {
       entries,
     },
