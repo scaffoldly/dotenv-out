@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const url = require('url');
-const yargs = require('yargs');
-const dotenv = require('dotenv');
-const dotenvExpand = require('dotenv-expand');
-const path = require('path');
-const ejs = require('ejs');
+import fs from 'fs';
+import yargs from 'yargs';
+import dotenv from 'dotenv';
+import dotenvExpand from 'dotenv-expand';
+import path from 'path';
+import ejs from 'ejs';
 
-const formats = {
+const formats: { [key: string]: { template: string; out: string } } = {
   dotenv: {
     template: 'templates/.env.ejs',
     out: '.env',
@@ -22,8 +21,8 @@ const formats = {
   },
 };
 
-const cascadePaths = (paths, cascade) => {
-  return paths.reduce((acc, path) => {
+const cascadePaths = (paths: string[], cascade: unknown) => {
+  return paths.reduce<string[]>((acc, path) => {
     if (cascade === true) {
       acc.push(...[`${path}.local`, path]);
     } else {
@@ -34,8 +33,8 @@ const cascadePaths = (paths, cascade) => {
   }, []);
 };
 
-const expandEnvironment = (paths, output) => {
-  return paths.reduce((acc, env) => {
+const expandEnvironment = (paths: string[], output: string) => {
+  return paths.reduce<{ [key: string]: string }>((acc, env) => {
     const inFile = path.resolve(env);
     if (inFile === output) {
       throw new Error(
@@ -54,25 +53,28 @@ const expandEnvironment = (paths, output) => {
   }, {});
 };
 
-const generateTemplate = async (env, templateFile) => {
+const generateTemplate = async (env: { [key: string]: string }, templateFile: string) => {
   const entries = Object.entries(env).map(([key, value]) => {
     return { key, value };
   });
-  const rendered = await ejs.renderFile(
-    path.resolve(`${path.dirname(url.fileURLToPath(import.meta.url))}/${templateFile}`),
-    {
-      entries,
-    },
-  );
+  const rendered = await ejs.renderFile(path.resolve(`${__dirname}/${templateFile}`), {
+    entries,
+  });
   return rendered;
 };
 
-const write = (contents, location) => {
+const write = (contents: string, location: string) => {
   fs.mkdirSync(path.parse(location).dir, { recursive: true });
   fs.writeFileSync(location, contents);
 };
 
-const run = async (debug, format, paths, cascade, output) => {
+const run = async (
+  debug: boolean,
+  format: string,
+  paths: string[],
+  cascade: unknown,
+  output: string,
+) => {
   if (cascade) {
     paths = cascadePaths(paths, cascade);
   }
@@ -94,7 +96,7 @@ const run = async (debug, format, paths, cascade, output) => {
 
 (async () => {
   try {
-    const argv = yargs(process.argv.slice(2))
+    const argv = await yargs(process.argv.slice(2))
       .usage('Usage: $0 [options]')
       .wrap(null)
       .describe('f', 'Output format')
@@ -103,8 +105,9 @@ const run = async (debug, format, paths, cascade, output) => {
       .boolean('d')
       .default('d', false)
       .describe('e', 'Path to .env file(s)')
-      .array('e')
       .default('e', '.env')
+      .string('e')
+      .array('e')
       .describe('o', 'Output directory for generated Typescript file')
       .default('o', '.')
       .describe(
