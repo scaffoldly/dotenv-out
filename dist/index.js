@@ -173,7 +173,7 @@ var run = function (debug, format, paths, cascade, output) { return __awaiter(vo
                         .example('$0 -f typescript -e .scaffoldly/.env -e .env', "Generate ./env.ts using:\n        .scaffoldly/.env\n        .env\n")
                         .example('$0 -f typescript -e .scaffoldly/.env -e .env -c', "Generate ./env.ts using:\n        .scaffoldly/.env.local\n        .scaffoldly/.env\n        .env.local\n        .env\n")
                         .example('$0 -f typescript -e .scaffoldly/.env -e .env -c nonlive', "Generate ./env.ts using:\n        .scaffoldly/.env.nonlive.local\n        .scaffoldly/.env.nonlive\n        .scaffoldly/.env.local\n        .scaffoldly/.env\n        .env.nonlive.local\n        .env.nonlive\n        .env.local\n        .env\n")
-                        .example('$0 -f dotenv -e .scaffoldly/.env -e .env -c nonlive -o outdir', "Generate ./env.ts using:\n        .scaffoldly/.env.nonlive.local\n        .scaffoldly/.env.nonlive\n        .scaffoldly/.env.local\n        .scaffoldly/.env\n        .env.nonlive.local\n        .env.nonlive\n        .env.local\n        .env\n")
+                        .example('$0 -f dotenv -e .scaffoldly/.env -e .env -c nonlive -o outdir', "Generate ./outdir/.env using:\n        .scaffoldly/.env.nonlive.local\n        .scaffoldly/.env.nonlive\n        .scaffoldly/.env.local\n        .scaffoldly/.env\n        .env.nonlive.local\n        .env.nonlive\n        .env.local\n        .env\n")
                         .demandOption(['f', 'e', 'o']).argv];
             case 1:
                 argv = _a.sent();
