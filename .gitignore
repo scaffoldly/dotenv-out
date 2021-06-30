@@ -1,0 +1,7 @@
+# JS Files
+node_modules/
+
+# Generated Output
+.env
+env.sh
+env.ts
