@@ -2,7 +2,7 @@
   "name": "dotenv-out",
   "version": "1.0.2-2",
   "description": "This CLI is a wrapper for dotenv and will output a resultant file with the compiled environment variables in a particular language format.",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "build": "tsc && cp -R templates dist/",
     "prepare": "yarn build"
