@@ -197,7 +197,7 @@ const run = async (
       )
       .example(
         '$0 -f dotenv -e .scaffoldly/.env -e .env -c nonlive -o outdir',
-        `Generate ./env.ts using:
+        `Generate ./outdir/.env using:
         .scaffoldly/.env.nonlive.local
         .scaffoldly/.env.nonlive
         .scaffoldly/.env.local

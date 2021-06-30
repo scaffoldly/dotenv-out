@@ -103,7 +103,7 @@ Examples:
                                                                                .env.local
                                                                                .env
 
-  dotenv-out -f dotenv -e .scaffoldly/.env -e .env -c nonlive -o outdir  Generate ./env.ts using:
+  dotenv-out -f dotenv -e .scaffoldly/.env -e .env -c nonlive -o outdir  Generate ./outdir/.env using:
                                                                                .scaffoldly/.env.nonlive.local
                                                                                .scaffoldly/.env.nonlive
                                                                                .scaffoldly/.env.local
