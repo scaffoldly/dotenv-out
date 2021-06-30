@@ -57,7 +57,7 @@ const generateTemplate = async (env, templateFile) => {
   const entries = Object.entries(env).map(([key, value]) => {
     return { key, value };
   });
-  const rendered = await ejs.renderFile(path.resolve(templateFile), {
+  const rendered = await ejs.renderFile(fs.realpathSync(templateFile), {
     entries,
   });
   return rendered;
