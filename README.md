@@ -13,7 +13,7 @@ Current output format support:
 
 - Dotenv `-f dotenv`
 - Shell `-f shell`
-- Typescript `-f typescrypt`
+- Typescript `-f typescript`
 
 PRs are welcome for additional templates!
 
