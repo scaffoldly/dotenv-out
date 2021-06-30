@@ -4,12 +4,15 @@
   "description": "This CLI is a wrapper for dotenv and will output a resultant file with the compiled environment variables in a particular language format.",
   "main": "index.js",
   "type": "module",
+  "scripts": {
+    "build": "ncc build index.js && cp -R templates dist/",
+    "prepare": "yarn build"
+  },
   "bin": {
-    "dotenv-out": "./index.js"
+    "dotenv-out": "./dist/index.js"
   },
   "files": [
-    "index.js",
-    "templates/"
+    "dist/"
   ],
   "repository": "git@github.com:scaffoldly/dotenv-out",
   "author": "Christian Nuss",
@@ -28,5 +31,8 @@
     "output",
     "typescript",
     "generator"
-  ]
+  ],
+  "devDependencies": {
+    "@vercel/ncc": "^0.27.0"
+  }
 }
