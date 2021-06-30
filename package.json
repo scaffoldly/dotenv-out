@@ -3,7 +3,6 @@
   "version": "1.0.2-0",
   "description": "This CLI is a wrapper for dotenv and will output a resultant file with the compiled environment variables in a particular language format.",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "build": "ncc build index.js && cp -R templates dist/",
     "prepare": "yarn build"
