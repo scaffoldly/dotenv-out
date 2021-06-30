@@ -5,7 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc && cp -R templates dist/",
-    "prepare": "yarn build"
+    "prepare": "yarn build",
+    "start": "ts-node index.ts"
   },
   "bin": {
     "dotenv-out": "./dist/index.js"
@@ -36,6 +37,7 @@
     "@types/node": "^15.12.5",
     "@types/yargs": "^17.0.0",
     "@vercel/ncc": "^0.28.6",
+    "ts-node": "^10.0.0",
     "typescript": "^4.3.4"
   }
 }
