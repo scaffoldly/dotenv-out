@@ -6,32 +6,39 @@ This CLI is a wrapper for [dotenv](https://github.com/motdotla/dotenv) and will
 output a resultant file with the compiled environment in a particular language
 format.
 
-The behavior of this mimics the same cascading and multi-file options of
-[dotenv-cli](https://github.com/entropitor/dotenv-cli).
+**NOTE**: The behavior of this mimics the same cascading and multi-file options of
+[dotenv-cli](https://github.com/entropitor/dotenv-cli), **with the exception**
+that the `-c <arg>` flag _DOES NOT_ process `*.local` files.
 
 Current output format support:
 
-- Dotenv `-f dotenv`
-- Shell `-f shell`
-- Typescript `-f typescript`
+- Dotenv: `-f dotenv` [template](./templates/.env.ejs)
+- Shell: `-f shell` [template](./templates/env.sh.ejs)
+- Typescript: `-f typescript` [template](./templates/env.ts.ejs)
 
 PRs are welcome for additional templates!
 
 ## Running
 
-```
+```shell
+# For all commands and examples
 npx dotenv-out --help
+
+```
+
+```shell
+npx dotenv-out -f typescript -o src
 ```
 
 ### Within a project
 
-```
+```shell
 yarn add --dev dotenv-out
 ```
 
 In `package.json`:
 
-```
+```json
   "scripts": {
     "dotenv": "dotenv-out -f typescript -o src"
   },
@@ -43,73 +50,61 @@ In `package.json`:
 Usage: dotenv-out [options]
 
 Options:
-      --help             Show help  [boolean]
-      --version          Show version number  [boolean]
-  -f                     Output format  [required] [choices: "dotenv", "shell", "typescript"]
-  -d                     Dryrun + Debug (No output file will be written)  [boolean] [default: false]
-  -e                     Path to .env file(s)  [array] [required] [default: ".env"]
-  -o                     Output directory for generated Typescript file  [required] [default: "."]
-      --c <environment>  Cascading env variables from files:
-                                 .env.<environment>.local
-                                 .env.<environment>
-                                 .env.local
-                                 .env
-
-  -c                     Cascading env variables from files:
-                                 .env.local
-                                 .env
+      --help     Show help  [boolean]
+      --version  Show version number  [boolean]
+  -f             Output format  [required] [choices: "dotenv", "shell", "typescript"]
+  -d             Dryrun + Debug (No output file will be written)  [boolean] [default: false]
+  -e             Path to .env file(s), in order of precedence  [array] [required] [default: ".env"]
+  -o             Output directory for generated Typescript file  [required] [default: "."]
+  -c             Cascading env variables from files:
+                         .env.<arg> (If not provided an <arg>, defaults to `local`)
+                         .env
 
 
 Examples:
-  dotenv-out -f typescript -d                                            Dryrun+debug output using:
-                                                                               .env
+  dotenv-out -f typescript -d                                    Dryrun+debug output using:
+                                                                       .env
 
-  dotenv-out -f typescript -e .env                                       Generate ./env.ts using:
-                                                                               .env
+  dotenv-out -f typescript                                       Generate ./env.ts using:
+                                                                       .env
 
-  dotenv-out -f typescript -e .env                                       Generate ./env.ts using:
-                                                                               .env
+  dotenv-out -f typescript -e .env                               Generate ./env.ts using:
+                                                                       .env
 
-  dotenv-out -f dotenv -e .env -o src                                    Generate ./src/.env using:
-                                                                               .env
+  dotenv-out -f dotenv -e .env -o src                            Generate ./src/.env using:
+                                                                       .env
 
-  dotenv-out -f typescript -e .env -c                                    Generate ./env.ts using:
-                                                                               .env.local
-                                                                               .env
+  dotenv-out -f typescript -e .env -c                            Generate ./env.ts using:
+                                                                       .env.local
+                                                                       .env
 
-  dotenv-out -f typescript -e .env -c nonlive                            Generate ./env.ts using:
-                                                                               .env.nonlive.local
-                                                                               .env.nonlive
-                                                                               .env.local
-                                                                               .env
+  dotenv-out -f typescript -e .env -c live                       Generate ./env.ts using:
+                                                                       .env.live
+                                                                       .env
 
-  dotenv-out -f typescript -e .scaffoldly/.env -e .env                   Generate ./env.ts using:
-                                                                               .scaffoldly/.env
-                                                                               .env
+  dotenv-out -f typescript -e .env -e .other/.env                Generate ./env.ts using:
+                                                                       .env
+                                                                       .other/.env
 
-  dotenv-out -f typescript -e .scaffoldly/.env -e .env -c                Generate ./env.ts using:
-                                                                               .scaffoldly/.env.local
-                                                                               .scaffoldly/.env
-                                                                               .env.local
-                                                                               .env
+  dotenv-out -f typescript -e .env -e .other/.env -c             Generate ./env.ts using:
+                                                                       .env.local
+                                                                       .env
+                                                                       .other/.env.local
+                                                                       .other/.env
 
-  dotenv-out -f typescript -e .scaffoldly/.env -e .env -c nonlive        Generate ./env.ts using:
-                                                                               .scaffoldly/.env.nonlive.local
-                                                                               .scaffoldly/.env.nonlive
-                                                                               .scaffoldly/.env.local
-                                                                               .scaffoldly/.env
-                                                                               .env.nonlive.local
-                                                                               .env.nonlive
-                                                                               .env.local
-                                                                               .env
+  dotenv-out -f typescript -e .env -e .other/.env -c live        Generate ./env.ts using:
+                                                                       .env.live
+                                                                       .env
+                                                                       .other/.env.live
+                                                                       .other/.env
 
-  dotenv-out -f dotenv -e .scaffoldly/.env -e .env -c nonlive -o outdir  Generate ./outdir/.env using:
-                                                                               .scaffoldly/.env.nonlive.local
-                                                                               .scaffoldly/.env.nonlive
-                                                                               .scaffoldly/.env.local
-                                                                               .scaffoldly/.env
-                                                                               .env.nonlive.local
-                                                                               .env.nonlive
-                                                                               .env.local
-                                                                               .env
+  dotenv-out -f dotenv -e .env -e .other/.env -c live -o outdir  Generate ./outdir/.env using:
+                                                                       .env.live
+                                                                       .env
+                                                                       .other/.env.live
+                                                                       .other/.env
 ```
+
+# License
+
+[MIT](./LICENSE)

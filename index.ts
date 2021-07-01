@@ -26,7 +26,7 @@ const cascadePaths = (paths: string[], cascade: unknown) => {
     if (cascade === true) {
       acc.push(...[`${path}.local`, path]);
     } else {
-      acc.push(...[`${path}.${cascade}.local`, `${path}.${cascade}`, `${path}.local`, path]);
+      acc.push(...[`${path}.${cascade}`, path]);
     }
 
     return acc;
@@ -104,25 +104,16 @@ const run = async (
       .describe('d', 'Dryrun + Debug (No output file will be written)')
       .boolean('d')
       .default('d', false)
-      .describe('e', 'Path to .env file(s)')
+      .describe('e', 'Path to .env file(s), in order of precedence')
       .default('e', '.env')
       .string('e')
       .array('e')
       .describe('o', 'Output directory for generated Typescript file')
       .default('o', '.')
       .describe(
-        'c <environment>',
-        `Cascading env variables from files: 
-        .env.<environment>.local
-        .env.<environment>
-        .env.local
-        .env 
-        `,
-      )
-      .describe(
         'c',
         `Cascading env variables from files: 
-        .env.local
+        .env.<arg> (If not provided an <arg>, defaults to \`local\`)
         .env 
         `,
       )
@@ -133,7 +124,7 @@ const run = async (
 `,
       )
       .example(
-        '$0 -f typescript -e .env',
+        '$0 -f typescript',
         `Generate ./env.ts using:
         .env
 `,
@@ -158,54 +149,44 @@ const run = async (
 `,
       )
       .example(
-        '$0 -f typescript -e .env -c nonlive',
+        '$0 -f typescript -e .env -c live',
         `Generate ./env.ts using:
-        .env.nonlive.local
-        .env.nonlive
+        .env.live
+        .env
+`,
+      )
+      .example(
+        '$0 -f typescript -e .env -e .other/.env',
+        `Generate ./env.ts using:
+        .env
+        .other/.env
+`,
+      )
+      .example(
+        '$0 -f typescript -e .env -e .other/.env -c',
+        `Generate ./env.ts using:
         .env.local
         .env
+        .other/.env.local
+        .other/.env
 `,
       )
       .example(
-        '$0 -f typescript -e .scaffoldly/.env -e .env',
+        '$0 -f typescript -e .env -e .other/.env -c live',
         `Generate ./env.ts using:
-        .scaffoldly/.env
+        .env.live
         .env
+        .other/.env.live
+        .other/.env
 `,
       )
       .example(
-        '$0 -f typescript -e .scaffoldly/.env -e .env -c',
-        `Generate ./env.ts using:
-        .scaffoldly/.env.local
-        .scaffoldly/.env
-        .env.local
-        .env
-`,
-      )
-      .example(
-        '$0 -f typescript -e .scaffoldly/.env -e .env -c nonlive',
-        `Generate ./env.ts using:
-        .scaffoldly/.env.nonlive.local
-        .scaffoldly/.env.nonlive
-        .scaffoldly/.env.local
-        .scaffoldly/.env
-        .env.nonlive.local
-        .env.nonlive
-        .env.local
-        .env
-`,
-      )
-      .example(
-        '$0 -f dotenv -e .scaffoldly/.env -e .env -c nonlive -o outdir',
+        '$0 -f dotenv -e .env -e .other/.env -c live -o outdir',
         `Generate ./outdir/.env using:
-        .scaffoldly/.env.nonlive.local
-        .scaffoldly/.env.nonlive
-        .scaffoldly/.env.local
-        .scaffoldly/.env
-        .env.nonlive.local
-        .env.nonlive
-        .env.local
+        .env.live
         .env
+        .other/.env.live
+        .other/.env
 `,
       )
       .demandOption(['f', 'e', 'o']).argv;
