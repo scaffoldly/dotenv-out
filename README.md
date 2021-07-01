@@ -21,12 +21,14 @@ PRs are welcome for additional templates!
 ## Running
 
 ```shell
-# For all commands and examples
+# Show all options and examples
 npx dotenv-out --help
-
 ```
 
 ```shell
+# Debug Output + Dryrun
+npx dotenv-out -f typescript -o src -d
+
 # Generate ./src/env.ts using .env
 npx dotenv-out -f typescript -o src
 ```
