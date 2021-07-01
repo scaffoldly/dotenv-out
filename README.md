@@ -12,9 +12,9 @@ that the `-c <arg>` flag _DOES NOT_ process `*.local` files.
 
 Current output format support:
 
-- Dotenv: `-f dotenv` [template](./templates/.env.ejs)
-- Shell: `-f shell` [template](./templates/env.sh.ejs)
-- Typescript: `-f typescript` [template](./templates/env.ts.ejs)
+- Dotenv: `-f dotenv` ([see template](./templates/.env.ejs))
+- Shell: `-f shell` ([see template](./templates/env.sh.ejs))
+- Typescript: `-f typescript` ([see template](./templates/env.ts.ejs))
 
 PRs are welcome for additional templates!
 
@@ -27,8 +27,11 @@ npx dotenv-out --help
 ```
 
 ```shell
+# Generate ./src/env.ts using .env
 npx dotenv-out -f typescript -o src
 ```
+
+See [usage](#usage) for more examples.
 
 ### Within a project
 
