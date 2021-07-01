@@ -77,7 +77,7 @@ var cascadePaths = function (paths, cascade) {
             acc.push.apply(acc, [path + ".local", path]);
         }
         else {
-            acc.push.apply(acc, [path + "." + cascade + ".local", path + "." + cascade, path + ".local", path]);
+            acc.push.apply(acc, [path + "." + cascade, path]);
         }
         return acc;
     }, []);
@@ -156,24 +156,23 @@ var run = function (debug, format, paths, cascade, output) { return __awaiter(vo
                         .describe('d', 'Dryrun + Debug (No output file will be written)')
                         .boolean('d')
                         .default('d', false)
-                        .describe('e', 'Path to .env file(s)')
+                        .describe('e', 'Path to .env file(s), in order of precedence')
                         .default('e', '.env')
                         .string('e')
                         .array('e')
                         .describe('o', 'Output directory for generated Typescript file')
                         .default('o', '.')
-                        .describe('c <environment>', "Cascading env variables from files: \n        .env.<environment>.local\n        .env.<environment>\n        .env.local\n        .env \n        ")
-                        .describe('c', "Cascading env variables from files: \n        .env.local\n        .env \n        ")
+                        .describe('c', "Cascading env variables from files: \n        .env.<arg> (If not provided an <arg>, defaults to `local`)\n        .env \n        ")
                         .example('$0 -f typescript -d', "Dryrun+debug output using:\n        .env\n")
-                        .example('$0 -f typescript -e .env', "Generate ./env.ts using:\n        .env\n")
+                        .example('$0 -f typescript', "Generate ./env.ts using:\n        .env\n")
                         .example('$0 -f typescript -e .env', "Generate ./env.ts using:\n        .env\n")
                         .example('$0 -f dotenv -e .env -o src', "Generate ./src/.env using:\n        .env\n")
                         .example('$0 -f typescript -e .env -c', "Generate ./env.ts using:\n        .env.local\n        .env\n")
-                        .example('$0 -f typescript -e .env -c nonlive', "Generate ./env.ts using:\n        .env.nonlive.local\n        .env.nonlive\n        .env.local\n        .env\n")
-                        .example('$0 -f typescript -e .scaffoldly/.env -e .env', "Generate ./env.ts using:\n        .scaffoldly/.env\n        .env\n")
-                        .example('$0 -f typescript -e .scaffoldly/.env -e .env -c', "Generate ./env.ts using:\n        .scaffoldly/.env.local\n        .scaffoldly/.env\n        .env.local\n        .env\n")
-                        .example('$0 -f typescript -e .scaffoldly/.env -e .env -c nonlive', "Generate ./env.ts using:\n        .scaffoldly/.env.nonlive.local\n        .scaffoldly/.env.nonlive\n        .scaffoldly/.env.local\n        .scaffoldly/.env\n        .env.nonlive.local\n        .env.nonlive\n        .env.local\n        .env\n")
-                        .example('$0 -f dotenv -e .scaffoldly/.env -e .env -c nonlive -o outdir', "Generate ./outdir/.env using:\n        .scaffoldly/.env.nonlive.local\n        .scaffoldly/.env.nonlive\n        .scaffoldly/.env.local\n        .scaffoldly/.env\n        .env.nonlive.local\n        .env.nonlive\n        .env.local\n        .env\n")
+                        .example('$0 -f typescript -e .env -c live', "Generate ./env.ts using:\n        .env.live\n        .env\n")
+                        .example('$0 -f typescript -e .env -e .other/.env', "Generate ./env.ts using:\n        .env\n        .other/.env\n")
+                        .example('$0 -f typescript -e .env -e .other/.env -c', "Generate ./env.ts using:\n        .env.local\n        .env\n        .other/.env.local\n        .other/.env\n")
+                        .example('$0 -f typescript -e .env -e .other/.env -c live', "Generate ./env.ts using:\n        .env.live\n        .env\n        .other/.env.live\n        .other/.env\n")
+                        .example('$0 -f dotenv -e .env -e .other/.env -c live -o outdir', "Generate ./outdir/.env using:\n        .env.live\n        .env\n        .other/.env.live\n        .other/.env\n")
                         .demandOption(['f', 'e', 'o']).argv];
             case 1:
                 argv = _a.sent();
