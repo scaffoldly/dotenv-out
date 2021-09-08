@@ -82,11 +82,17 @@ var cascadePaths = function (paths, cascade) {
         return acc;
     }, []);
 };
-var expandEnvironment = function (paths, output) {
+var expandEnvironment = function (paths, output, overwrite) {
     return paths.reduce(function (acc, env) {
         var inFile = path_1.default.resolve(env);
         if (inFile === output) {
-            throw new Error("Error: This would overwrite a source file: " + inFile + ". Use `-o` to change the output directory.");
+            if (!overwrite) {
+                throw new Error("Error: This would overwrite a source file: " + inFile + ". Use `--overwrite` to overwrite " + inFile + " and exclude it from expansion.");
+            }
+            else {
+                console.warn("WARNING: " + inFile + " will be overwritten");
+                return acc;
+            }
         }
         var out = dotenv_expand_1.default(dotenv_1.default.config({ path: inFile }));
         if (!out.parsed) {
@@ -117,7 +123,7 @@ var write = function (contents, location) {
     fs_1.default.mkdirSync(path_1.default.parse(location).dir, { recursive: true });
     fs_1.default.writeFileSync(location, contents);
 };
-var run = function (debug, format, paths, cascade, output) { return __awaiter(void 0, void 0, void 0, function () {
+var run = function (debug, format, paths, cascade, output, overwrite) { return __awaiter(void 0, void 0, void 0, function () {
     var env, rendered;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -128,7 +134,7 @@ var run = function (debug, format, paths, cascade, output) { return __awaiter(vo
                 if (debug)
                     console.debug('Paths: ', paths);
                 output = path_1.default.resolve(output + "/" + formats[format].out);
-                env = expandEnvironment(paths, output);
+                env = expandEnvironment(paths, output, overwrite);
                 if (debug)
                     console.debug('Environment:', env);
                 return [4 /*yield*/, generateTemplate(env, formats[format].template)];
@@ -156,6 +162,9 @@ var run = function (debug, format, paths, cascade, output) { return __awaiter(vo
                         .describe('d', 'Dryrun + Debug (No output file will be written)')
                         .boolean('d')
                         .default('d', false)
+                        .describe('overwrite', 'Force overwrite if a source file is also a destination file. This will exclude source file from expansion as well')
+                        .boolean('overwrite')
+                        .default('overwrite', false)
                         .describe('e', 'Path to .env file(s), in order of precedence')
                         .default('e', '.env')
                         .string('e')
@@ -176,7 +185,7 @@ var run = function (debug, format, paths, cascade, output) { return __awaiter(vo
                         .demandOption(['f', 'e', 'o']).argv];
             case 1:
                 argv = _a.sent();
-                return [4 /*yield*/, run(argv.d, argv.f, argv.e, argv.c, argv.o)];
+                return [4 /*yield*/, run(argv.d, argv.f, argv.e, argv.c, argv.o, argv.overwrite)];
             case 2:
                 _a.sent();
                 return [3 /*break*/, 4];
