@@ -33,13 +33,18 @@ const cascadePaths = (paths: string[], cascade: unknown) => {
   }, []);
 };
 
-const expandEnvironment = (paths: string[], output: string) => {
+const expandEnvironment = (paths: string[], output: string, overwrite: boolean) => {
   return paths.reduce<{ [key: string]: string }>((acc, env) => {
     const inFile = path.resolve(env);
     if (inFile === output) {
-      throw new Error(
-        `Error: This would overwrite a source file: ${inFile}. Use \`-o\` to change the output directory.`,
-      );
+      if (!overwrite) {
+        throw new Error(
+          `Error: This would overwrite a source file: ${inFile}. Use \`--overwrite\` to overwrite ${inFile} and exclude it from expansion.`,
+        );
+      } else {
+        console.warn(`WARNING: ${inFile} will be overwritten`);
+        return acc;
+      }
     }
 
     const out = dotenvExpand(dotenv.config({ path: inFile }));
@@ -74,6 +79,7 @@ const run = async (
   paths: string[],
   cascade: unknown,
   output: string,
+  overwrite: boolean,
 ) => {
   if (cascade) {
     paths = cascadePaths(paths, cascade);
@@ -83,7 +89,7 @@ const run = async (
 
   output = path.resolve(`${output}/${formats[format].out}`);
 
-  const env = expandEnvironment(paths, output);
+  const env = expandEnvironment(paths, output, overwrite);
 
   if (debug) console.debug('Environment:', env);
 
@@ -104,6 +110,12 @@ const run = async (
       .describe('d', 'Dryrun + Debug (No output file will be written)')
       .boolean('d')
       .default('d', false)
+      .describe(
+        'overwrite',
+        'Force overwrite if a source file is also a destination file. This will exclude source file from expansion as well',
+      )
+      .boolean('overwrite')
+      .default('overwrite', false)
       .describe('e', 'Path to .env file(s), in order of precedence')
       .default('e', '.env')
       .string('e')
@@ -191,7 +203,7 @@ const run = async (
       )
       .demandOption(['f', 'e', 'o']).argv;
 
-    await run(argv.d, argv.f, argv.e, argv.c, argv.o);
+    await run(argv.d, argv.f, argv.e, argv.c, argv.o, argv.overwrite);
   } catch (e) {
     console.error(e.message);
     process.exit(-1);
