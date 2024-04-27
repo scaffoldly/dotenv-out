@@ -40,11 +40,12 @@ const cascadePaths = (paths: string[], cascade: unknown) => {
   }, []);
 };
 
-const expandServerless = (serverlessYaml?: string) => {
+const expandServerless = (debug: boolean, serverlessYaml?: string) => {
   if (!serverlessYaml) {
     return {};
   }
   const serverless = parse(fs.readFileSync(serverlessYaml, 'utf8'), {
+    logLevel: debug ? 'warn' : 'silent',
     strict: false,
   }) as ServerlessYaml;
   if (!serverless.provider || !serverless.provider.environment) {
