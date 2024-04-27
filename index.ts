@@ -44,13 +44,15 @@ const expandServerless = (serverlessYaml?: string) => {
   if (!serverlessYaml) {
     return {};
   }
-  const serverless = parse(fs.readFileSync(serverlessYaml, 'utf8')) as ServerlessYaml;
+  const serverless = parse(fs.readFileSync(serverlessYaml, 'utf8'), {
+    strict: false,
+  }) as ServerlessYaml;
   if (!serverless.provider || !serverless.provider.environment) {
     return {};
   }
   return Object.entries(serverless.provider.environment).reduce((acc, [key, value]) => {
     if (typeof value !== 'string') {
-      acc[key] = 'injected-at-runtime';
+      acc[key] = '~~use-env~~';
       return acc;
     }
     acc[key] = value;
