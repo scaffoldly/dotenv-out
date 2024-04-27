@@ -40,12 +40,13 @@ const cascadePaths = (paths: string[], cascade: unknown) => {
   }, []);
 };
 
-const expandServerless = (debug: boolean, serverlessYaml?: string) => {
+const expandServerless = (serverlessYaml?: string) => {
   if (!serverlessYaml) {
     return {};
   }
   const serverless = parse(fs.readFileSync(serverlessYaml, 'utf8'), {
-    logLevel: debug ? 'warn' : 'silent',
+    logLevel: 'silent',
+    prettyErrors: false,
     strict: false,
   }) as ServerlessYaml;
   if (!serverless.provider || !serverless.provider.environment) {
@@ -122,7 +123,7 @@ const run = async (
 
   if (debug) console.debug('Expanded Environment:', expandedEnv);
 
-  const serverlessEnv = expandServerless(debug, serverlessYaml);
+  const serverlessEnv = expandServerless(serverlessYaml);
 
   if (debug) console.debug('Expanded Serverless Environment:', serverlessEnv);
 
@@ -156,12 +157,15 @@ const run = async (
       .default('e', '.env')
       .string('e')
       .array('e')
-      .describe('sls', 'Include environment variables from serverless YAML file')
-      .boolean('sls')
-      .default('sls', false)
-      .describe('slsYaml', 'Include environment variables in the provided Serverless YAML file')
-      .string('slsYaml')
-      .default('slsYaml', 'serverless.yml')
+      .describe('serverless', 'Include environment variables from serverless YAML file')
+      .boolean('serverless')
+      .default('serverless', false)
+      .describe(
+        'serverlessYaml',
+        'Include environment variables in the provided Serverless YAML file',
+      )
+      .string('serverlessYaml')
+      .default('serverlessYaml', 'serverless.yml')
       .describe('o', 'Output directory for generated Typescript file')
       .default('o', '.')
       .describe(
@@ -252,7 +256,7 @@ const run = async (
       argv.c,
       argv.o,
       argv.overwrite,
-      argv.sls ? argv.slsYaml : 'serverless.yml',
+      argv.serverless ? argv.serverlessYaml || 'serverless.yml' : undefined,
     );
   } catch (e) {
     if (!(e instanceof Error)) {
