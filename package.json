@@ -1,6 +1,6 @@
 {
   "name": "dotenv-out",
-  "version": "1.1.1",
+  "version": "1.1.2-0",
   "description": "This CLI is a wrapper for dotenv and will output a resultant file with the compiled environment variables in a particular language format.",
   "private": false,
   "main": "index.ts",

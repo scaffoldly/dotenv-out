@@ -83,11 +83,12 @@ var cascadePaths = function (paths, cascade) {
         return acc;
     }, []);
 };
-var expandServerless = function (serverlessYaml) {
+var expandServerless = function (debug, serverlessYaml) {
     if (!serverlessYaml) {
         return {};
     }
     var serverless = yaml_1.parse(fs_1.default.readFileSync(serverlessYaml, 'utf8'), {
+        logLevel: debug ? 'warn' : 'silent',
         strict: false,
     });
     if (!serverless.provider || !serverless.provider.environment) {
@@ -158,7 +159,7 @@ var run = function (debug, format, paths, cascade, output, overwrite, serverless
                 expandedEnv = expandEnvironment(paths, output, overwrite);
                 if (debug)
                     console.debug('Expanded Environment:', expandedEnv);
-                serverlessEnv = expandServerless(serverlessYaml);
+                serverlessEnv = expandServerless(debug, serverlessYaml);
                 if (debug)
                     console.debug('Expanded Serverless Environment:', serverlessEnv);
                 return [4 /*yield*/, generateTemplate(__assign(__assign({}, serverlessEnv), expandedEnv), formats[format].template)];
