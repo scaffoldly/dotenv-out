@@ -83,12 +83,13 @@ var cascadePaths = function (paths, cascade) {
         return acc;
     }, []);
 };
-var expandServerless = function (debug, serverlessYaml) {
+var expandServerless = function (serverlessYaml) {
     if (!serverlessYaml) {
         return {};
     }
     var serverless = yaml_1.parse(fs_1.default.readFileSync(serverlessYaml, 'utf8'), {
-        logLevel: debug ? 'warn' : 'silent',
+        logLevel: 'silent',
+        prettyErrors: false,
         strict: false,
     });
     if (!serverless.provider || !serverless.provider.environment) {
@@ -159,7 +160,7 @@ var run = function (debug, format, paths, cascade, output, overwrite, serverless
                 expandedEnv = expandEnvironment(paths, output, overwrite);
                 if (debug)
                     console.debug('Expanded Environment:', expandedEnv);
-                serverlessEnv = expandServerless(debug, serverlessYaml);
+                serverlessEnv = expandServerless(serverlessYaml);
                 if (debug)
                     console.debug('Expanded Serverless Environment:', serverlessEnv);
                 return [4 /*yield*/, generateTemplate(__assign(__assign({}, serverlessEnv), expandedEnv), formats[format].template)];
@@ -194,12 +195,12 @@ var run = function (debug, format, paths, cascade, output, overwrite, serverless
                         .default('e', '.env')
                         .string('e')
                         .array('e')
-                        .describe('sls', 'Include environment variables from serverless YAML file')
-                        .boolean('sls')
-                        .default('sls', false)
-                        .describe('slsYaml', 'Include environment variables in the provided Serverless YAML file')
-                        .string('slsYaml')
-                        .default('slsYaml', 'serverless.yml')
+                        .describe('serverless', 'Include environment variables from serverless YAML file')
+                        .boolean('serverless')
+                        .default('serverless', false)
+                        .describe('serverlessYaml', 'Include environment variables in the provided Serverless YAML file')
+                        .string('serverlessYaml')
+                        .default('serverlessYaml', 'serverless.yml')
                         .describe('o', 'Output directory for generated Typescript file')
                         .default('o', '.')
                         .describe('c', "Cascading env variables from files: \n        .env.<arg> (If not provided an <arg>, defaults to `local`)\n        .env \n        ")
@@ -216,7 +217,7 @@ var run = function (debug, format, paths, cascade, output, overwrite, serverless
                         .demandOption(['f', 'e', 'o']).argv];
             case 1:
                 argv = _a.sent();
-                return [4 /*yield*/, run(argv.d, argv.f, argv.e, argv.c, argv.o, argv.overwrite, argv.sls ? argv.slsYaml : 'serverless.yml')];
+                return [4 /*yield*/, run(argv.d, argv.f, argv.e, argv.c, argv.o, argv.overwrite, argv.serverless ? argv.serverlessYaml || 'serverless.yml' : undefined)];
             case 2:
                 _a.sent();
                 return [3 /*break*/, 4];
