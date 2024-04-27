@@ -61,6 +61,8 @@ Options:
   -d               Dryrun + Debug (No output file will be written)  [boolean] [default: false]
       --overwrite  Force overwrite if a source file is also a destination file. This will exclude source file from expansion as well  [boolean] [default: false]
   -e               Path to .env file(s), in order of precedence  [array] [required] [default: ".env"]
+      --sls        Include environment variables from serverless YAML file  [boolean] [default: false]
+      --slsYaml    Include environment variables in the provided Serverless YAML file  [string] [default: "serverless.yml"]
   -o               Output directory for generated Typescript file  [required] [default: "."]
   -c               Cascading env variables from files:
                            .env.<arg> (If not provided an <arg>, defaults to `local`)

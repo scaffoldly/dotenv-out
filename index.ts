@@ -5,6 +5,13 @@ import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 import path from 'path';
 import ejs from 'ejs';
+import { parse } from 'yaml';
+
+type ServerlessYaml = {
+  provider?: {
+    environment?: { [key: string]: any };
+  };
+};
 
 const formats: { [key: string]: { template: string; out: string } } = {
   dotenv: {
@@ -31,6 +38,24 @@ const cascadePaths = (paths: string[], cascade: unknown) => {
 
     return acc;
   }, []);
+};
+
+const expandServerless = (serverlessYaml?: string) => {
+  if (!serverlessYaml) {
+    return {};
+  }
+  const serverless = parse(fs.readFileSync(serverlessYaml, 'utf8')) as ServerlessYaml;
+  if (!serverless.provider || !serverless.provider.environment) {
+    return {};
+  }
+  return Object.entries(serverless.provider.environment).reduce((acc, [key, value]) => {
+    if (typeof value !== 'string') {
+      acc[key] = 'injected-at-runtime';
+      return acc;
+    }
+    acc[key] = value;
+    return acc;
+  }, {} as { [key: string]: string });
 };
 
 const expandEnvironment = (paths: string[], output: string, overwrite: boolean) => {
@@ -80,6 +105,7 @@ const run = async (
   cascade: unknown,
   output: string,
   overwrite: boolean,
+  serverlessYaml?: string,
 ) => {
   if (cascade) {
     paths = cascadePaths(paths, cascade);
@@ -89,11 +115,18 @@ const run = async (
 
   output = path.resolve(`${output}/${formats[format].out}`);
 
-  const env = expandEnvironment(paths, output, overwrite);
+  const expandedEnv = expandEnvironment(paths, output, overwrite);
 
-  if (debug) console.debug('Environment:', env);
+  if (debug) console.debug('Expanded Environment:', expandedEnv);
 
-  const rendered = await generateTemplate(env, formats[format].template);
+  const serverlessEnv = expandServerless(serverlessYaml);
+
+  if (debug) console.debug('Expanded Serverless Environment:', serverlessEnv);
+
+  const rendered = await generateTemplate(
+    { ...serverlessEnv, ...expandedEnv },
+    formats[format].template,
+  );
 
   if (debug) console.debug(`Rendered ${output}:\n\n\`\`\`${format}\n${rendered}\`\`\`\n`);
 
@@ -120,6 +153,12 @@ const run = async (
       .default('e', '.env')
       .string('e')
       .array('e')
+      .describe('sls', 'Include environment variables from serverless YAML file')
+      .boolean('sls')
+      .default('sls', false)
+      .describe('slsYaml', 'Include environment variables in the provided Serverless YAML file')
+      .string('slsYaml')
+      .default('slsYaml', 'serverless.yml')
       .describe('o', 'Output directory for generated Typescript file')
       .default('o', '.')
       .describe(
@@ -203,8 +242,20 @@ const run = async (
       )
       .demandOption(['f', 'e', 'o']).argv;
 
-    await run(argv.d, argv.f, argv.e, argv.c, argv.o, argv.overwrite);
+    await run(
+      argv.d,
+      argv.f,
+      argv.e,
+      argv.c,
+      argv.o,
+      argv.overwrite,
+      argv.sls ? argv.slsYaml : 'serverless.yml',
+    );
   } catch (e) {
+    if (!(e instanceof Error)) {
+      console.error(e);
+      process.exit(-1);
+    }
     console.error(e.message);
     process.exit(-1);
   }

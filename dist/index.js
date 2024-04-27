@@ -57,6 +57,7 @@ var dotenv_1 = __importDefault(require("dotenv"));
 var dotenv_expand_1 = __importDefault(require("dotenv-expand"));
 var path_1 = __importDefault(require("path"));
 var ejs_1 = __importDefault(require("ejs"));
+var yaml_1 = require("yaml");
 var formats = {
     dotenv: {
         template: 'templates/.env.ejs',
@@ -81,6 +82,24 @@ var cascadePaths = function (paths, cascade) {
         }
         return acc;
     }, []);
+};
+var expandServerless = function (serverlessYaml) {
+    if (!serverlessYaml) {
+        return {};
+    }
+    var serverless = yaml_1.parse(fs_1.default.readFileSync(serverlessYaml, 'utf8'));
+    if (!serverless.provider || !serverless.provider.environment) {
+        return {};
+    }
+    return Object.entries(serverless.provider.environment).reduce(function (acc, _a) {
+        var key = _a[0], value = _a[1];
+        if (typeof value !== 'string') {
+            acc[key] = 'injected-at-runtime';
+            return acc;
+        }
+        acc[key] = value;
+        return acc;
+    }, {});
 };
 var expandEnvironment = function (paths, output, overwrite) {
     return paths.reduce(function (acc, env) {
@@ -123,8 +142,8 @@ var write = function (contents, location) {
     fs_1.default.mkdirSync(path_1.default.parse(location).dir, { recursive: true });
     fs_1.default.writeFileSync(location, contents);
 };
-var run = function (debug, format, paths, cascade, output, overwrite) { return __awaiter(void 0, void 0, void 0, function () {
-    var env, rendered;
+var run = function (debug, format, paths, cascade, output, overwrite, serverlessYaml) { return __awaiter(void 0, void 0, void 0, function () {
+    var expandedEnv, serverlessEnv, rendered;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -134,10 +153,13 @@ var run = function (debug, format, paths, cascade, output, overwrite) { return _
                 if (debug)
                     console.debug('Paths: ', paths);
                 output = path_1.default.resolve(output + "/" + formats[format].out);
-                env = expandEnvironment(paths, output, overwrite);
+                expandedEnv = expandEnvironment(paths, output, overwrite);
                 if (debug)
-                    console.debug('Environment:', env);
-                return [4 /*yield*/, generateTemplate(env, formats[format].template)];
+                    console.debug('Expanded Environment:', expandedEnv);
+                serverlessEnv = expandServerless(serverlessYaml);
+                if (debug)
+                    console.debug('Expanded Serverless Environment:', serverlessEnv);
+                return [4 /*yield*/, generateTemplate(__assign(__assign({}, serverlessEnv), expandedEnv), formats[format].template)];
             case 1:
                 rendered = _a.sent();
                 if (debug)
@@ -169,6 +191,12 @@ var run = function (debug, format, paths, cascade, output, overwrite) { return _
                         .default('e', '.env')
                         .string('e')
                         .array('e')
+                        .describe('sls', 'Include environment variables from serverless YAML file')
+                        .boolean('sls')
+                        .default('sls', false)
+                        .describe('slsYaml', 'Include environment variables in the provided Serverless YAML file')
+                        .string('slsYaml')
+                        .default('slsYaml', 'serverless.yml')
                         .describe('o', 'Output directory for generated Typescript file')
                         .default('o', '.')
                         .describe('c', "Cascading env variables from files: \n        .env.<arg> (If not provided an <arg>, defaults to `local`)\n        .env \n        ")
@@ -185,12 +213,16 @@ var run = function (debug, format, paths, cascade, output, overwrite) { return _
                         .demandOption(['f', 'e', 'o']).argv];
             case 1:
                 argv = _a.sent();
-                return [4 /*yield*/, run(argv.d, argv.f, argv.e, argv.c, argv.o, argv.overwrite)];
+                return [4 /*yield*/, run(argv.d, argv.f, argv.e, argv.c, argv.o, argv.overwrite, argv.sls ? argv.slsYaml : 'serverless.yml')];
             case 2:
                 _a.sent();
                 return [3 /*break*/, 4];
             case 3:
                 e_1 = _a.sent();
+                if (!(e_1 instanceof Error)) {
+                    console.error(e_1);
+                    process.exit(-1);
+                }
                 console.error(e_1.message);
                 process.exit(-1);
                 return [3 /*break*/, 4];
