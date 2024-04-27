@@ -122,7 +122,7 @@ const run = async (
 
   if (debug) console.debug('Expanded Environment:', expandedEnv);
 
-  const serverlessEnv = expandServerless(serverlessYaml);
+  const serverlessEnv = expandServerless(debug, serverlessYaml);
 
   if (debug) console.debug('Expanded Serverless Environment:', serverlessEnv);
 
