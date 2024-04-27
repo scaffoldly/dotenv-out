@@ -87,14 +87,16 @@ var expandServerless = function (serverlessYaml) {
     if (!serverlessYaml) {
         return {};
     }
-    var serverless = yaml_1.parse(fs_1.default.readFileSync(serverlessYaml, 'utf8'));
+    var serverless = yaml_1.parse(fs_1.default.readFileSync(serverlessYaml, 'utf8'), {
+        strict: false,
+    });
     if (!serverless.provider || !serverless.provider.environment) {
         return {};
     }
     return Object.entries(serverless.provider.environment).reduce(function (acc, _a) {
         var key = _a[0], value = _a[1];
         if (typeof value !== 'string') {
-            acc[key] = 'injected-at-runtime';
+            acc[key] = '~~use-env~~';
             return acc;
         }
         acc[key] = value;
